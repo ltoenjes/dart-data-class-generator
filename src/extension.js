@@ -1057,7 +1057,7 @@ class DataClassGenerator {
 
             switch (prop.type) {
                 case 'DateTime':
-                    return `${name}?.millisecondsSinceEpoch${endFlag}`;
+                    return `${name}?.toIso8601String()${endFlag}`;
                 case 'Color':
                     return `${name}?.value${endFlag}`;
                 case 'IconData':
@@ -1222,7 +1222,7 @@ class DataClassGenerator {
 
         let collectionEqualityFn;
         if (hasCollection) {
-            // Flutter already has collection equality functions 
+            // Flutter already has collection equality functions
             // in the foundation package.
             if (isFlutter) {
                 this.requiresImport('package:flutter/foundation.dart');
@@ -1507,7 +1507,7 @@ class DataClassGenerator {
                 brackets -= count(line, ')');
 
                 // Detect beginning of constructor by looking for the class name and a bracket, while also
-                // making sure not to falsely detect a function constructor invocation with the actual 
+                // making sure not to falsely detect a function constructor invocation with the actual
                 // constructor with boilerplaty checking all possible constructor options.
                 const includesConstr = line.replace('const', '').trimLeft().startsWith(clazz.name + '(');
                 if (includesConstr && !classLine) {
@@ -1611,7 +1611,7 @@ class DataClassGenerator {
     /**
      * This function is for parsing the class name line while maintaining
      * also more complex generic types like class A<A, List<C>>.
-     * 
+     *
      * @param {string} line
      */
     splitWhileMaintaingGenerics(line) {
@@ -1723,7 +1723,7 @@ class JsonReader {
 	/**
 	 * Create DartClasses from a JSON mapping with class content and properties.
 	 * This is intended only for creating new files not overriding exisiting ones.
-	 * 
+	 *
 	 * @param {any} object
 	 * @param {string} key
 	 */
