@@ -91,7 +91,7 @@ async function generateJsonDataClass() {
                 location: vscode.ProgressLocation.Notification,
                 cancellable: false
             }, async function (progress, token) {
-                progress.report({ increment: 0, message: 'Generating Data Classes...' });
+                progress.report({increment: 0, message: 'Generating Data Classes...'});
                 scrollTo(0);
                 await reader.commitJson(progress, seperate);
                 clearSelection();
@@ -413,8 +413,8 @@ class DartClass {
 
 class Imports {
     /**
-	 * @param {string} text
-	 */
+     * @param {string} text
+     */
     constructor(text) {
         /** @type {string[]} */
         this.values = [];
@@ -525,6 +525,7 @@ class Imports {
         }
 
         let imps = '';
+
         function addImports(imports) {
             imports.sort();
             for (let i = 0; i < imports.length; i++) {
@@ -563,8 +564,8 @@ class Imports {
     }
 
     /**
-	 * @param {string[]} imps
-	 */
+     * @param {string[]} imps
+     */
     hastAtLeastOneImport(imps) {
         for (let imp of imps) {
             const impt = `import '${imp}';`;
@@ -588,13 +589,13 @@ class Imports {
 }
 
 class ClassField {
-	/**
-	 * @param {String} type
-	 * @param {String} name
-	 * @param {number} line
-	 * @param {boolean} isFinal
-	 * @param {boolean} isConst
-	 */
+    /**
+     * @param {String} type
+     * @param {String} name
+     * @param {number} line
+     * @param {boolean} isFinal
+     * @param {boolean} isConst
+     */
     constructor(type, name, line = 1, isFinal = true, isConst = false) {
         this.type = type;
         this.jsonName = name;
@@ -644,13 +645,19 @@ class ClassField {
             return 'const {}';
         } else {
             switch (this.type) {
-                case 'String': return "''";
+                case 'String':
+                    return "''";
                 case 'num':
-                case 'int': return "0";
-                case 'double': return "0.0";
-                case 'bool': return 'false';
-                case 'dynamic': return "null";
-                default: return `${this.type}()`;
+                case 'int':
+                    return "0";
+                case 'double':
+                    return "0.0";
+                case 'bool':
+                    return 'false';
+                case 'dynamic':
+                    return "null";
+                default:
+                    return `${this.type}()`;
             }
         }
     }
@@ -908,9 +915,9 @@ class DataClassGenerator {
         return oldProperties;
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertConstructor(clazz) {
         const defVal = readSetting('constructor.default_values');
         let required = readSetting('constructor.required');
@@ -1022,9 +1029,9 @@ class DataClassGenerator {
         }
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertCopyWith(clazz) {
         let method = clazz.type + ' copyWith({\n';
         for (let p of clazz.properties) {
@@ -1043,11 +1050,12 @@ class DataClassGenerator {
         this.appendOrReplace('copyWith', method, `${clazz.name} copyWith(`, clazz);
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertToMap(clazz) {
         let props = clazz.properties;
+
         /**
          * @param {ClassField} prop
          */
@@ -1073,7 +1081,7 @@ class DataClassGenerator {
             method += `    '${p.jsonName}': `;
 
             if (p.isEnum) {
-                method += `${p.name}?.index,\n`;
+                method += `getEnumValue(${p.name}),\n`;
             } else if (p.isCollection) {
                 if (p.isMap || p.listType.isPrimitive) {
                     const mapFlag = p.isSet ? '?.toList()' : '';
@@ -1091,9 +1099,9 @@ class DataClassGenerator {
         this.appendOrReplace('toMap', method, 'Map<String, dynamic> toMap()', clazz);
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertFromMap(clazz) {
         let defVal = readSetting('fromMap.default_values');
         let props = clazz.properties;
@@ -1129,7 +1137,7 @@ class DataClassGenerator {
             const value = `map['${p.jsonName}']`;
             if (p.isEnum) {
                 const defaultValue = defVal ? ' ?? 0' : '';
-                method += `${p.type}.values[${value}${defaultValue}],\n`;
+                method += `enumFromString<${p.type}>(${p.type}.values, ${value}${defaultValue}),\n`;
             } else if (p.isCollection) {
                 const defaultValue = defVal ? ` ?? const ${p.isList ? '[]' : '{}'}` : '';
 
@@ -1151,9 +1159,9 @@ class DataClassGenerator {
         this.appendOrReplace('fromMap', method, `factory ${clazz.name}.fromMap(Map<String, dynamic> map)`, clazz);
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertToJson(clazz) {
         this.requiresImport('dart:convert');
 
@@ -1161,9 +1169,9 @@ class DataClassGenerator {
         this.appendOrReplace('toJson', method, 'String toJson()', clazz);
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertFromJson(clazz) {
         this.requiresImport('dart:convert');
 
@@ -1171,9 +1179,9 @@ class DataClassGenerator {
         this.appendOrReplace('fromJson', method, `factory ${clazz.name}.fromJson(String source)`, clazz);
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertToString(clazz) {
         if (clazz.usesEquatable || readSetting('useEquatable')) {
             if (clazz.superclass != 'Equatable' && !clazz.mixins.includes('EquatableMixin')) {
@@ -1213,9 +1221,9 @@ class DataClassGenerator {
         }
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertEquality(clazz) {
         const props = clazz.properties;
         const hasCollection = props.find((p) => p.isCollection) != undefined;
@@ -1261,9 +1269,9 @@ class DataClassGenerator {
         this.appendOrReplace('equality', method, 'bool operator ==', clazz);
     }
 
-	/**
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {DartClass} clazz
+     */
     insertHash(clazz) {
         const useJenkins = readSetting('hashCode.use_jenkins');
         const short = !useJenkins && clazz.fewProps;
@@ -1322,8 +1330,8 @@ class DataClassGenerator {
     }
 
     /**
-	 * @param {DartClass} clazz
-	 */
+     * @param {DartClass} clazz
+     */
     insertEquatable(clazz) {
         this.addEquatableDetails(clazz);
 
@@ -1395,10 +1403,10 @@ class DataClassGenerator {
         }
     }
 
-	/**
-	 * @param {string} method
-	 * @param {DartClass} clazz
-	 */
+    /**
+     * @param {string} method
+     * @param {DartClass} clazz
+     */
     append(method, clazz, constr = false) {
         let met = indent(method);
         constr ? clazz.constr = met : clazz.toInsert += '\n' + met;
@@ -1581,8 +1589,8 @@ class DataClassGenerator {
                                             name = removeEnd(word, ';');
                                     } else {
                                         if (type == null) type = word;
-                                        // Types can have gaps => Pair<A, B>,
-                                        // thus append word to type if a name hasn't
+                                            // Types can have gaps => Pair<A, B>,
+                                            // thus append word to type if a name hasn't
                                         // been detected.
                                         else if (name == null) type += ' ' + word;
                                     }
@@ -1654,10 +1662,10 @@ class DataClassGenerator {
 }
 
 class DartFile {
-	/**
-	 * @param {DartClass} clazz
-	 * @param {string} content
-	 */
+    /**
+     * @param {DartClass} clazz
+     * @param {string} content
+     */
     constructor(clazz, content = null) {
         this.clazz = clazz;
         this.name = createFileName(clazz.name);
@@ -1666,10 +1674,10 @@ class DartFile {
 }
 
 class JsonReader {
-	/**
-	 * @param {string} source
-	 * @param {string} className
-	 */
+    /**
+     * @param {string} source
+     * @param {string} className
+     */
     constructor(source, className) {
         this.json = this.toPlainJson(source);
 
@@ -1695,16 +1703,16 @@ class JsonReader {
         return null;
     }
 
-	/**
-	 * @param {string} source
-	 */
+    /**
+     * @param {string} source
+     */
     toPlainJson(source) {
         return source.replace(new RegExp(' ', 'g'), '').replace(new RegExp('\n', 'g'), '');
     }
 
-	/**
-	 * @param {any} value
-	 */
+    /**
+     * @param {any} value
+     */
     getPrimitive(value) {
         let type = typeof (value);
         let sType = null;
@@ -1720,13 +1728,13 @@ class JsonReader {
         return sType;
     }
 
-	/**
-	 * Create DartClasses from a JSON mapping with class content and properties.
-	 * This is intended only for creating new files not overriding exisiting ones.
-	 *
-	 * @param {any} object
-	 * @param {string} key
-	 */
+    /**
+     * Create DartClasses from a JSON mapping with class content and properties.
+     * This is intended only for creating new files not overriding exisiting ones.
+     *
+     * @param {any} object
+     * @param {string} key
+     */
     getClazzes(object, key) {
         let clazz = new DartClass();
         clazz.startsAtLine = 1;
@@ -1786,9 +1794,9 @@ class JsonReader {
         clazz.classContent += '}';
     }
 
-	/**
-	 * @param {string} property
-	 */
+    /**
+     * @param {string} property
+     */
     getGeneratedTypeCount(property) {
         let p = new ClassField(property, 'x');
         let i = 0;
@@ -1834,9 +1842,9 @@ class JsonReader {
         this.clazzes = result;
     }
 
-	/**
-	 * @param {DataClassGenerator} generator
-	 */
+    /**
+     * @param {DataClassGenerator} generator
+     */
     addGeneratedFilesAsImport(generator) {
         const clazz = generator.clazzes[0];
         for (let prop of clazz.properties) {
@@ -1850,10 +1858,10 @@ class JsonReader {
         }
     }
 
-	/**
-	 * @param {vscode.Progress} progress
-	 * @param {boolean} seperate
-	 */
+    /**
+     * @param {vscode.Progress} progress
+     * @param {boolean} seperate
+     */
     async commitJson(progress, seperate) {
         let path = getCurrentPath();
         let fileContent = '';
@@ -2304,9 +2312,9 @@ function toVarName(source) {
     let s = source;
     let r = '';
 
-	/**
-	 * @param {string} char
-	 */
+    /**
+     * @param {string} char
+     */
     let replace = (char) => {
         if (s.includes(char)) {
             const splits = s.split(char);
@@ -2329,39 +2337,105 @@ function toVarName(source) {
 
     // Prevent dart keywords from being used.
     switch (r) {
-        case 'assert': r = 'aAssert'; break;
-        case 'break': r = 'bBreak'; break;
-        case 'case': r = 'cCase'; break;
-        case 'catch': r = 'cCatch'; break;
-        case 'class': r = 'cClass'; break;
-        case 'const': r = 'cConst'; break;
-        case 'continue': r = 'cContinue'; break;
-        case 'default': r = 'dDefault'; break;
-        case 'do': r = 'dDo'; break;
-        case 'else': r = 'eElse'; break;
-        case 'enum': r = 'eEnum'; break;
-        case 'extends': r = 'eExtends'; break;
-        case 'false': r = 'fFalse'; break;
-        case 'final': r = 'fFinal'; break;
-        case 'finally': r = 'fFinally'; break;
-        case 'for': r = 'fFor'; break;
-        case 'if': r = 'iIf'; break;
-        case 'in': r = 'iIn'; break;
-        case 'is': r = 'iIs'; break;
-        case 'new': r = 'nNew'; break;
-        case 'null': r = 'nNull'; break;
-        case 'rethrow': r = 'rRethrow'; break;
-        case 'return': r = 'rReturn'; break;
-        case 'super': r = 'sSuper'; break;
-        case 'switch': r = 'sSwitch'; break;
-        case 'this': r = 'tThis'; break;
-        case 'throw': r = 'tThrow'; break;
-        case 'true': r = 'tTrue'; break;
-        case 'try': r = 'tTry'; break;
-        case 'var': r = 'vVar'; break;
-        case 'void': r = 'vVoid'; break;
-        case 'while': r = 'wWhile'; break;
-        case 'with': r = 'wWith'; break;
+        case 'assert':
+            r = 'aAssert';
+            break;
+        case 'break':
+            r = 'bBreak';
+            break;
+        case 'case':
+            r = 'cCase';
+            break;
+        case 'catch':
+            r = 'cCatch';
+            break;
+        case 'class':
+            r = 'cClass';
+            break;
+        case 'const':
+            r = 'cConst';
+            break;
+        case 'continue':
+            r = 'cContinue';
+            break;
+        case 'default':
+            r = 'dDefault';
+            break;
+        case 'do':
+            r = 'dDo';
+            break;
+        case 'else':
+            r = 'eElse';
+            break;
+        case 'enum':
+            r = 'eEnum';
+            break;
+        case 'extends':
+            r = 'eExtends';
+            break;
+        case 'false':
+            r = 'fFalse';
+            break;
+        case 'final':
+            r = 'fFinal';
+            break;
+        case 'finally':
+            r = 'fFinally';
+            break;
+        case 'for':
+            r = 'fFor';
+            break;
+        case 'if':
+            r = 'iIf';
+            break;
+        case 'in':
+            r = 'iIn';
+            break;
+        case 'is':
+            r = 'iIs';
+            break;
+        case 'new':
+            r = 'nNew';
+            break;
+        case 'null':
+            r = 'nNull';
+            break;
+        case 'rethrow':
+            r = 'rRethrow';
+            break;
+        case 'return':
+            r = 'rReturn';
+            break;
+        case 'super':
+            r = 'sSuper';
+            break;
+        case 'switch':
+            r = 'sSwitch';
+            break;
+        case 'this':
+            r = 'tThis';
+            break;
+        case 'throw':
+            r = 'tThrow';
+            break;
+        case 'true':
+            r = 'tTrue';
+            break;
+        case 'try':
+            r = 'tTry';
+            break;
+        case 'var':
+            r = 'vVar';
+            break;
+        case 'void':
+            r = 'vVoid';
+            break;
+        case 'while':
+            r = 'wWhile';
+            break;
+        case 'with':
+            r = 'wWith';
+            break;
     }
 
     if (r.length > 0 && r[0].match(new RegExp(/[0-9]/)))
@@ -2380,7 +2454,7 @@ function editorReplace(editor, start = null, end = null, value) {
     editor.replace(new vscode.Range(
         new vscode.Position(start || 0, 0),
         new vscode.Position(end || getDocText().split('\n').length, 1)
-    ),
+        ),
         value
     );
 }
@@ -2487,9 +2561,9 @@ function indent(source) {
 }
 
 /**
-* @param {string} source
-* @param {string} match
-*/
+ * @param {string} source
+ * @param {string} match
+ */
 function count(source, match) {
     let count = 0;
     let length = match.length;
@@ -2514,9 +2588,9 @@ function areStrictEqual(a, b) {
 }
 
 /**
-* @param {string} source
-* @param {string[]} matches
-*/
+ * @param {string} source
+ * @param {string[]} matches
+ */
 function removeAll(source, matches) {
     let r = '';
     for (let s of source) {
@@ -2528,9 +2602,9 @@ function removeAll(source, matches) {
 }
 
 /**
-* @param {string} source
-* @param {string[]} matches
-*/
+ * @param {string} source
+ * @param {string[]} matches
+ */
 function includesOne(source, matches, wordBased = true) {
     const words = wordBased ? source.split(' ') : [source];
     for (let word of words) {
@@ -2549,9 +2623,9 @@ function includesOne(source, matches, wordBased = true) {
 }
 
 /**
-* @param {string} source
-* @param {string[]} matches
-*/
+ * @param {string} source
+ * @param {string[]} matches
+ */
 function includesAll(source, matches) {
     for (let match of matches) {
         if (!source.includes(match))
@@ -2612,7 +2686,8 @@ function showInfo(msg) {
 
 exports.activate = activate;
 
-function deactivate() { }
+function deactivate() {
+}
 
 module.exports = {
     activate,
